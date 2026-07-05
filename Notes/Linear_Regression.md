@@ -1,13 +1,76 @@
 # Linear Regression Study Notes
 
 This document contains detailed study notes on Linear Regression based on the following implementations:
-*   **From-Scratch Implementation**: [Scratch_linReg.py](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Scratch_linReg.py)
-*   **Toy Dataset Implementation (Diabetes)**: [toy_dataset_implmentation.ipynb](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/toy_dataset_implmentation.ipynb)
-*   **Real-world Dataset Implementation (California Housing)**: [Real_dataset_implementation.ipynb](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Real_dataset_implementation.ipynb)
+*   **From-Scratch Implementation**: [Scratch_linReg.py](../Machine%20Learning/Linear%20Regression/Scratch_linReg.py)
+*   **Toy Dataset Implementation (Diabetes)**: [toy_dataset_implmentation.ipynb](../Machine%20Learning/Linear%20Regression/toy_dataset_implmentation.ipynb)
+*   **Real-world Dataset Implementation (California Housing)**: [Real_dataset_implementation.ipynb](../Machine%20Learning/Linear%20Regression/Real_dataset_implementation.ipynb)
 
 ---
 
-## 1. Mathematical Underpinnings of Linear Regression
+## 1. Intuition
+
+Suppose you want to predict house prices.
+You notice that larger houses usually cost more.
+Can we draw the best possible straight line through these points?
+That's exactly what **Linear Regression** does. It fits a straight line (or hyperplane in higher dimensions) to your data to predict a continuous numeric outcome.
+
+---
+
+## 2. Linear vs. Logistic Regression Comparison Table
+
+| Feature | Linear Regression | Logistic Regression |
+| :--- | :--- | :--- |
+| **Output** | Continuous (e.g., house price, temperature) | Probability (value between 0 and 1) |
+| **Task** | Regression | Classification (usually binary) |
+| **Activation** | None (Identity) | Sigmoid (Logistic) / Softmax (Multiclass) |
+| **Loss Function** | Mean Squared Error (MSE) | Binary Cross Entropy (Log Loss) |
+| **Decision Boundary** | N/A (continuous output) | Linear (separated by probability threshold, e.g., 0.5) |
+
+---
+
+## 3. Assumptions of Linear Regression
+
+*   **Linear Relationship**: The relationship between independent variables and the dependent target variable is linear.
+*   **Independent Observations**: The data points/residuals are independent of one another.
+*   **Homoscedasticity**: The variance of residuals is constant across all prediction levels.
+*   **Normally Distributed Residuals**: The residual errors follow a normal distribution.
+*   **Low Multicollinearity**: Features are not highly correlated with each other.
+
+---
+
+## 4. Advantages & Disadvantages
+
+### Advantages
+*   **Fast**: Computationally simple and extremely quick to train and predict.
+*   **Easy to Interpret**: The learned coefficients directly represent the feature importances and their directional relationship with the target.
+*   **Works Well for Linear Relationships**: A great baseline model when linear assumptions hold true.
+
+### Disadvantages
+*   **Sensitive to Outliers**: Extreme data points can heavily skew the line of best fit due to the squared error penalty.
+*   **Cannot Model Non-Linear Relationships**: Poor performance on complex, non-linear patterns without feature transformations (e.g., polynomial features).
+*   **Assumes Linearity**: Fails if variables have strong non-linear interactions.
+
+---
+
+## 5. When should I use this? (Use Cases)
+
+*   **House Price Prediction**: Estimating prices based on square footage, bedrooms, age.
+*   **Sales Forecasting**: Predicting future revenue based on historical trends, marketing spend.
+*   **Demand Forecasting**: Estimating electricity grid load based on temperature and hour of the day.
+
+---
+
+## 6. Hyperparameters
+
+When optimizing Linear Regression using iterative methods like Gradient Descent, the main hyperparameters are:
+*   `learning_rate` ($\eta$): Controls step size taken towards the local minimum.
+    *   *Too small*: Extremely slow training.
+    *   *Too large*: Can cause divergence (overshooting the minimum).
+*   `n_iter`: Number of training epochs/iterations over the dataset.
+
+---
+
+## 7. Mathematical Underpinnings of Linear Regression
 
 Linear Regression models the relationship between a dependent target variable $y$ and one or more independent feature variables $X$.
 
@@ -41,16 +104,16 @@ $$b \leftarrow b - \eta \frac{\partial L}{\partial b}$$
 
 ---
 
-## 2. From-Scratch Implementation (`Scratch_linReg.py`)
+## 7. From-Scratch Implementation (`Scratch_linReg.py`)
 
-The scratch script [Scratch_linReg.py](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Scratch_linReg.py) demonstrates gradient descent optimization from first principles using `numpy`.
+The scratch script [Scratch_linReg.py](../Machine%20Learning/Linear%20Regression/Scratch_linReg.py) demonstrates gradient descent optimization from first principles using `numpy`.
 
 ### Code Structure
-*   **[LinearRegression](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Scratch_linReg.py#L3)**: Class representing the linear regression model.
-    *   **[__init__](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Scratch_linReg.py#L4)**: Sets `learning_rate` (default `0.01`) and `n_iter` (default `1000`).
-    *   **[fit](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Scratch_linReg.py#L10)**: Initializes weights $\mathbf{w}$ to a zero vector of shape `(n_features,)` and bias $b$ to `0`. It runs gradient descent for `n_iter` iterations.
-    *   **[predict](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Scratch_linReg.py#L25)**: Computes predictions using the linear equation.
-*   **[mse](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Scratch_linReg.py#L29)**: Standard metric function to evaluate mean squared error.
+*   **[LinearRegression](../Machine%20Learning/Linear%20Regression/Scratch_linReg.py#L3)**: Class representing the linear regression model.
+    *   **[__init__](../Machine%20Learning/Linear%20Regression/Scratch_linReg.py#L4)**: Sets `learning_rate` (default `0.01`) and `n_iter` (default `1000`).
+    *   **[fit](../Machine%20Learning/Linear%20Regression/Scratch_linReg.py#L10)**: Initializes weights $\mathbf{w}$ to a zero vector of shape `(n_features,)` and bias $b$ to `0`. It runs gradient descent for `n_iter` iterations.
+    *   **[predict](../Machine%20Learning/Linear%20Regression/Scratch_linReg.py#L25)**: Computes predictions using the linear equation.
+*   **[mse](../Machine%20Learning/Linear%20Regression/Scratch_linReg.py#L29)**: Standard metric function to evaluate mean squared error.
 
 ### Vectorized Update Logic in `fit`
 ```python
@@ -76,9 +139,9 @@ self.bias = self.bias - self.learning_rate * db
 
 ---
 
-## 3. Toy Dataset Implementation (Diabetes)
+## 8. Toy Dataset Implementation (Diabetes)
 
-The notebook [toy_dataset_implmentation.ipynb](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/toy_dataset_implmentation.ipynb) applies Scikit-Learn's `LinearRegression` model to the standard diabetes dataset.
+The notebook [toy_dataset_implmentation.ipynb](../Machine%20Learning/Linear%20Regression/toy_dataset_implmentation.ipynb) applies Scikit-Learn's `LinearRegression` model to the standard diabetes dataset.
 
 ### Exploratory Data Analysis (EDA)
 1.  **Dimensions & Info**: The dataset contains $442$ instances and $10$ physiological baseline features (age, sex, bmi, average blood pressure, and six blood serum measurements).
@@ -98,9 +161,9 @@ The notebook [toy_dataset_implmentation.ipynb](file:///c:/Users/ADARSH S SAHOO/D
 
 ---
 
-## 4. Real-world Dataset Implementation (California Housing)
+## 9. Real-world Dataset Implementation (California Housing)
 
-The notebook [Real_dataset_implementation.ipynb](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Real_dataset_implementation.ipynb) demonstrates a rigorous, production-grade ML pipeline on the California Housing dataset.
+The notebook [Real_dataset_implementation.ipynb](../Machine%20Learning/Linear%20Regression/Real_dataset_implementation.ipynb) demonstrates a rigorous, production-grade ML pipeline on the California Housing dataset.
 
 ### Advanced Exploratory Data Analysis (EDA)
 A comprehensive $3 \times 2$ grid of plots was generated to explore the dataset's characteristics:
@@ -148,7 +211,7 @@ Three linear models were evaluated on the processed dataset:
 
 ---
 
-## 5. Polynomial Features & High-Dimensional Overfitting
+## 10. Polynomial Features & High-Dimensional Overfitting
 
 To model non-linear interactions, polynomial feature expansion (Degree 3) was applied:
 ```python
@@ -175,7 +238,7 @@ This rapid expansion increases computational complexity and introduces a severe 
 
 ---
 
-## 6. Key Takeaways & Best Practices
+## 11. Key Takeaways & Best Practices
 
 1.  **Vectorized Optimization**: When implementing regression from scratch, vectorizing the gradient calculations using matrix dot products ($X^T \cdot (\hat{y} - y)$) is computationally superior to looping over samples.
 2.  **Addressing Multicollinearity**: Multicollinearity (like $r=0.85$ between rooms and bedrooms) destabilizes linear model coefficients, making features appear statistically insignificant. Ratio engineering (e.g. `BedroomsPerRoom`) resolves this while keeping the key information.

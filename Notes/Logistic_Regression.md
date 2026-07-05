@@ -1,13 +1,80 @@
 # Logistic Regression Study Notes
 
 This document contains detailed study notes on Logistic Regression based on the following implementations:
-*   **From-Scratch Implementation**: [Scratch_logReg.py](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Scratch_logReg.py)
-*   **Toy Dataset Implementation (Iris)**: [toy_dataset_implementation.ipynb](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/toy_dataset_implementation.ipynb)
-*   **Real-world Dataset Implementation (Titanic)**: [Real_dataset_implementation.ipynb](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Real_dataset_implementation.ipynb)
+*   **From-Scratch Implementation**: [Scratch_logReg.py](../Machine%20Learning/Logistic%20Regression/Scratch_logReg.py)
+*   **Toy Dataset Implementation (Iris)**: [toy_dataset_implementation.ipynb](../Machine%20Learning/Logistic%20Regression/toy_dataset_implementation.ipynb)
+*   **Real-world Dataset Implementation (Titanic)**: [Real_dataset_implementation.ipynb](../Machine%20Learning/Logistic%20Regression/Real_dataset_implementation.ipynb)
 
 ---
 
-## 1. Mathematical Underpinnings of Logistic Regression
+## 1. Intuition
+
+Suppose you're predicting whether an email is spam or not.
+The output cannot be $2.4$ or $-1$.
+It must be a probability between $0$ and $1$.
+That's why we use the **sigmoid function** to map any real-valued number into a value between $0$ and $1$. If the probability is $\ge 0.5$, we classify it as class 1 (Spam); otherwise, class 0 (Not Spam).
+
+---
+
+## 2. Linear vs. Logistic Regression Comparison Table
+
+| Feature | Linear Regression | Logistic Regression |
+| :--- | :--- | :--- |
+| **Output** | Continuous (e.g., house price, temperature) | Probability (value between 0 and 1) |
+| **Task** | Regression | Classification (usually binary) |
+| **Activation** | None (Identity) | Sigmoid (Logistic) / Softmax (Multiclass) |
+| **Loss Function** | Mean Squared Error (MSE) | Binary Cross Entropy (Log Loss) |
+| **Decision Boundary** | N/A (continuous output) | Linear (separated by probability threshold, e.g., 0.5) |
+
+---
+
+## 3. Assumptions of Logistic Regression
+
+While Logistic Regression does not require a linear relationship between features and the target, it has its own set of key assumptions:
+
+*   **Binary or Ordinal Outcome**: The target variable must be categorical (binary for standard logistic regression, ordinal/multiclass for multinomial).
+*   **Independence of Observations**: The data points must not be paired or dependent (no repeated measurements).
+*   **Low Multicollinearity**: The independent features should not be highly correlated with one another.
+*   **Linearity of Independent Variables and Log Odds**: There must be a linear relationship between the continuous independent features and the *log odds* (logit) of the target variable.
+*   **Large Sample Size**: Typically requires a relatively large sample size to achieve stable and reliable parameter estimates.
+
+---
+
+## 4. Advantages & Disadvantages
+
+### Advantages
+*   **Outputs Probabilities**: Provides calibrated, continuous probability scores instead of just hard class labels.
+*   **Highly Interpretable**: Model coefficients can be converted to odds ratios, making it easy to explain feature impacts.
+*   **Easy to Regularize**: Easily incorporates L1 (Lasso) or L2 (Ridge) regularization to prevent overfitting in higher dimensions.
+*   **Efficient**: Fast to train and execute, with low computational overhead.
+
+### Disadvantages
+*   **Assumes Linear Decision Boundary**: Cannot model non-linear boundaries natively without manual feature engineering or polynomial expansions.
+*   **Prone to Underfitting**: May perform poorly when decision boundaries are complex or highly non-linear.
+*   **Sensitive to Multicollinearity**: Correlated features can inflate coefficient variances, making interpretability difficult.
+
+---
+
+## 5. When should I use this? (Use Cases)
+
+*   **Spam Detection**: Classifying an email as "Spam" or "Not Spam".
+*   **Disease Prediction**: Assessing the probability of a patient having a disease (e.g., cancer) based on medical readings.
+*   **Customer Churn**: Predicting if a subscription customer will cancel or stay.
+*   **Fraud Detection**: Determining if a financial transaction is fraudulent or legitimate.
+
+---
+
+## 6. Hyperparameters
+
+When optimizing or training Logistic Regression, key hyperparameters include:
+*   `learning_rate` ($\eta$): Controls step size taken during gradient updates (crucial for from-scratch implementations).
+*   `n_iter`: Number of gradient descent iterations.
+*   `penalty` (e.g., `'l1'`, `'l2'`, `'elasticnet'`): The type of regularization applied to penalize large weights and prevent overfitting.
+*   `C`: Inverse of regularization strength. Small $C$ values specify stronger regularization.
+
+---
+
+## 7. Mathematical Underpinnings of Logistic Regression
 
 Logistic Regression is a supervised classification model used to estimate the probability that an instance belongs to a particular class (binary classification).
 
@@ -38,14 +105,14 @@ Applying the chain rule, the partial derivatives w.r.t parameters are:
 
 ---
 
-## 2. From-Scratch Implementation (`Scratch_logReg.py`)
+## 8. From-Scratch Implementation (`Scratch_logReg.py`)
 
-The python script [Scratch_logReg.py](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Scratch_logReg.py) implements logistic regression by subclassing the from-scratch [LinearRegression](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Linear Regression/Scratch_linReg.py#L3) class.
+The python script [Scratch_logReg.py](../Machine%20Learning/Logistic%20Regression/Scratch_logReg.py) implements logistic regression by subclassing the from-scratch [LinearRegression](../Machine%20Learning/Linear%20Regression/Scratch_linReg.py#L3) class.
 
 ### Inheritance and Class Design
-*   **[LogisticRegression](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Scratch_logReg.py#L17)**: Inherits hyperparameters (`learning_rate`, `n_iter`) from the baseline linear model, but overrides and implements classification-specific logic.
-*   **[_sigmoid](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Scratch_logReg.py#L18)**: Computes the element-wise logistic sigmoid mapping.
-*   **[fit](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Scratch_logReg.py#L21)**: Initializes weights $\mathbf{w}$ to a zero vector and bias $b$ to $0$. It runs gradient descent for `n_iter` iterations using the cross-entropy derivative:
+*   **[LogisticRegression](../Machine%20Learning/Logistic%20Regression/Scratch_logReg.py#L17)**: Inherits hyperparameters (`learning_rate`, `n_iter`) from the baseline linear model, but overrides and implements classification-specific logic.
+*   **[_sigmoid](../Machine%20Learning/Logistic%20Regression/Scratch_logReg.py#L18)**: Computes the element-wise logistic sigmoid mapping.
+*   **[fit](../Machine%20Learning/Logistic%20Regression/Scratch_logReg.py#L21)**: Initializes weights $\mathbf{w}$ to a zero vector and bias $b$ to $0$. It runs gradient descent for `n_iter` iterations using the cross-entropy derivative:
     ```python
     linear_model = np.dot(X, self.weights) + self.bias
     y_pred = self._sigmoid(linear_model)
@@ -53,8 +120,8 @@ The python script [Scratch_logReg.py](file:///c:/Users/ADARSH S SAHOO/Desktop/En
     dw = (1/n_samples) * np.dot(X.T, (y_pred - y))
     db = (1/n_samples) * np.sum(y_pred - y)
     ```
-*   **[predict_proba](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Scratch_logReg.py#L38)**: Computes and returns the probability scores.
-*   **[predict](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Scratch_logReg.py#L42)**: Hard-classifies predictions to $1$ or $0$ based on a $0.5$ probability threshold.
+*   **[predict_proba](../Machine%20Learning/Logistic%20Regression/Scratch_logReg.py#L38)**: Computes and returns the probability scores.
+*   **[predict](../Machine%20Learning/Logistic%20Regression/Scratch_logReg.py#L42)**: Hard-classifies predictions to $1$ or $0$ based on a $0.5$ probability threshold.
 
 ### Experiment on Breast Cancer Dataset
 *   **Dataset**: Breast Cancer dataset ($569$ samples, $30$ features).
@@ -67,9 +134,9 @@ The python script [Scratch_logReg.py](file:///c:/Users/ADARSH S SAHOO/Desktop/En
 
 ---
 
-## 3. Toy Dataset Implementation (Iris)
+## 9. Toy Dataset Implementation (Iris)
 
-The notebook [toy_dataset_implementation.ipynb](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/toy_dataset_implementation.ipynb) leverages `scikit-learn` to solve a multi-class classification problem.
+The notebook [toy_dataset_implementation.ipynb](../Machine%20Learning/Logistic%20Regression/toy_dataset_implementation.ipynb) leverages `scikit-learn` to solve a multi-class classification problem.
 
 ### Multi-Class Mechanics
 *   The Iris dataset contains three target classes: *setosa*, *versicolor*, and *virginica*.
@@ -85,9 +152,9 @@ The notebook [toy_dataset_implementation.ipynb](file:///c:/Users/ADARSH S SAHOO/
 
 ---
 
-## 4. Real-world Dataset Implementation (Titanic)
+## 10. Real-world Dataset Implementation (Titanic)
 
-The notebook [Real_dataset_implementation.ipynb](file:///c:/Users/ADARSH S SAHOO/Desktop/Engineering folder/AI-ML_2027/Machine Learning/Logistic Regression/Real_dataset_implementation.ipynb) demonstrates a full-lifecycle classification pipeline on the raw Titanic dataset.
+The notebook [Real_dataset_implementation.ipynb](../Machine%20Learning/Logistic%20Regression/Real_dataset_implementation.ipynb) demonstrates a full-lifecycle classification pipeline on the raw Titanic dataset.
 
 ### Advanced Data Cleaning & Imputation
 1.  **Drop High-Missing Column**: Dropped `Cabin` because it was missing $>70\%$ of its records, making reliable imputation impossible.
@@ -128,7 +195,7 @@ Plotting the model coefficients ($\mathbf{w}$) on a `coolwarm` scale yields phys
 
 ---
 
-## 5. Key Best Practices & Takeaways
+## 11. Key Best Practices & Takeaways
 
 1.  **Gradient Descent Implementations**:
     *   Understand the gradient scaling: $\frac{1}{N}$ scaling for Binary Cross Entropy vs $\frac{2}{N}$ for Mean Squared Error.
