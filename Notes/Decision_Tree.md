@@ -176,3 +176,20 @@ Adding custom features based on domain knowledge can significantly improve decis
 3. **`IncomePerDependent`**:
    $$\text{IncomePerDependent} = \frac{\text{TotalIncome}}{\text{Dependents} + 1}$$
    * **Reasoning**: Represents the household's remaining financial capacity. A high total income with 4 dependents leaves less disposable income than the same income with 0 dependents.
+
+---
+
+## 11. Quick Revision Summary Table
+
+| Property | Value |
+| :--- | :--- |
+| **Type** | Supervised |
+| **Problem** | Classification / Regression |
+| **Parametric** | No |
+| **Lazy Learner** | No (Eager learner) |
+| **Scaling Required** | No |
+| **Training Speed** | Medium-Slow ($O(N \cdot D \log N)$) |
+| **Prediction Speed** | Very Fast ($O(\text{Tree Depth})$) |
+| **Sensitive to Outliers** | No (Robust) |
+| **Sensitive to Scaling** | No |
+| **Main Hyperparameter** | `max_depth` / `min_samples_leaf` / `max_leaf_nodes` |

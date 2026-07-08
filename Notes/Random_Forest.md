@@ -173,3 +173,20 @@ To optimize the Random Forest split search, we engineered three domain-specific 
 3. **`IncomePerDependent`**:
    $$\text{IncomePerDependent} = \frac{\text{TotalIncome}}{\text{Dependents} + 1}$$
    * **Purpose**: Adjusts the available household income based on family size.
+
+---
+
+## 11. Quick Revision Summary Table
+
+| Property | Value |
+| :--- | :--- |
+| **Type** | Supervised |
+| **Problem** | Classification / Regression |
+| **Parametric** | No |
+| **Lazy Learner** | No (Eager learner) |
+| **Scaling Required** | No |
+| **Training Speed** | Medium (Slower than single tree, but highly parallelizable) |
+| **Prediction Speed** | Medium-Slow ($O(\text{n\_estimators} \times \text{Tree Depth})$) |
+| **Sensitive to Outliers** | No (Extremely robust) |
+| **Sensitive to Scaling** | No |
+| **Main Hyperparameter** | `n_estimators` / `max_features` / `max_depth` |

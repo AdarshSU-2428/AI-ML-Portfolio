@@ -208,3 +208,20 @@ Plotting the model coefficients ($\mathbf{w}$) on a `coolwarm` scale yields phys
     *   Impute continuous missing variables with mean or median, and drop records for categorical variables with negligible missingness.
 5.  **Model Coefficients as Feature Importance**:
     *   Unlike black-box models, Logistic Regression provides highly interpretable coefficients. Visualizing coefficients using a 1D heatmap helps verify model fairness and align learned weights with physical domain knowledge.
+
+---
+
+## 12. Quick Revision Summary Table
+
+| Property | Value |
+| :--- | :--- |
+| **Type** | Supervised |
+| **Problem** | Classification (primarily binary, can be multiclass) |
+| **Parametric** | Yes |
+| **Lazy Learner** | No (Eager learner) |
+| **Scaling Required** | Recommended (Mandatory when using L1/L2 regularization) |
+| **Training Speed** | Fast |
+| **Prediction Speed** | Very Fast ($O(D)$) |
+| **Sensitive to Outliers** | Yes |
+| **Sensitive to Scaling** | Yes (when regularized) |
+| **Main Hyperparameter** | `C` (Inverse regularization strength) / `penalty` |

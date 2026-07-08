@@ -247,3 +247,20 @@ This rapid expansion increases computational complexity and introduces a severe 
     *   Use **Ridge (L2)** when most features are relevant and coefficients need to be kept small.
     *   Use **Lasso (L1)** when the feature space is high-dimensional (e.g. after Polynomial Expansion) and sparse feature selection is needed to eliminate noise.
 5.  **Capped Target Values**: Artificial maximum limits in datasets (like $5.0$ in California Housing) cause linear models to underestimate values at the high end. Filtering them out improves model learning and generalization on standard continuous distributions.
+
+---
+
+## 12. Quick Revision Summary Table
+
+| Property | Value |
+| :--- | :--- |
+| **Type** | Supervised |
+| **Problem** | Regression |
+| **Parametric** | Yes |
+| **Lazy Learner** | No (Eager learner) |
+| **Scaling Required** | Recommended (Mandatory when using L1/L2 regularization or gradient descent) |
+| **Training Speed** | Fast (Direct OLS analytical solver or gradient descent) |
+| **Prediction Speed** | Very Fast ($O(D)$) |
+| **Sensitive to Outliers** | Yes (Highly sensitive due to squared errors) |
+| **Sensitive to Scaling** | Yes (when regularized or using gradient descent) |
+| **Main Hyperparameter** | `alpha` (Regularization strength in Ridge/Lasso) / `l1_ratio` |
