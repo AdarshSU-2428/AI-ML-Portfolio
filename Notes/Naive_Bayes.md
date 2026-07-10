@@ -124,7 +124,7 @@ Where:
 *   **Incredibly Fast**: Training requires a single pass over the data to calculate frequencies; predictions are fast dot products.
 *   **Performs well with high dimensions**: Excellent for text mining and document classification where features exceed samples.
 *   **Robust to Noise**: Unrelated features don't highly distort the probability distribution because they average out.
-*   **No scaling needed**: Since it relies on probability distributions and counts, numerical scaling is not required.
+*   **No scaling needed**: Since Naive Bayes estimates probability distributions rather than relying on distance calculations or gradient optimization, feature scaling is generally unnecessary.
 
 ### Disadvantages
 *   **The Independence Assumption is unrealistic**: In real data, features are often highly correlated, causing the model to over-rely on duplicate signals.
@@ -166,7 +166,18 @@ Where:
 
 ---
 
-## 9. Quick Revision Summary Table
+## 9. When to Use / Avoid Naive Bayes
+
+### Avoid Naive Bayes when:
+| Don't use when... | Reason |
+| :--- | :--- |
+| **Features are highly correlated** | The conditional independence assumption breaks, leading to double-counting of signals. |
+| **Need calibrated probabilities** | The predicted probabilities (`predict_proba()`) can be poorly calibrated (often pushed to extreme 0 or 1 values). |
+| **Complex feature interactions matter** | The model cannot capture dependencies between features (e.g., "Feature A is only useful if Feature B is present"). |
+
+---
+
+## 10. Quick Revision Summary Table
 
 | Property | Value |
 | :--- | :--- |
