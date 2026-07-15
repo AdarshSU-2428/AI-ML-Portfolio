@@ -1,7 +1,7 @@
 # Gradient Boosting, XGBoost, and LightGBM Study Notes
 
 This document contains detailed study notes on Gradient Boosting models, specifically Scikit-Learn's GBDT, XGBoost, and LightGBM, based on the following implementations:
-*   **Toy Dataset Implementation**: [toy_dataset_implementation.ipynb](../Machine%20Learning/Gradient%20Boosting/toy_dataset_implementation.ipynb)
+*   **Breast Cancer Dataset Implementation**: [toy_dataset_implementation.ipynb](../Machine%20Learning/Gradient%20Boosting/toy_dataset_implementation.ipynb)
 *   **Real-world Dataset Implementation (Adult Income Prediction)**: [Real_dataset_implementation.ipynb](../Machine%20Learning/Gradient%20Boosting/Real_dataset_implementation.ipynb)
 
 ---
@@ -147,8 +147,8 @@ $$\Omega(f) = \gamma T + \frac{1}{2} \lambda \sum_{j=1}^T w_j^2 + \alpha \sum_{j
 
 ## 8. Implementation Analysis & Performance Comparison
 
-### A. Toy Dataset (Synthetic Classification)
-*   **Goal**: Evaluate model performance on a synthetic classification dataset with regularization to control overfitting.
+### A. Breast Cancer Dataset (Classification)
+*   **Goal**: Evaluate model performance on the Breast Cancer classification dataset with regularization to control overfitting.
 *   **Tuning Details**: Regularization via shallow tree limits (`max_depth=1`) was implemented to manage generalization.
 *   **Results**:
     *   **LightGBM**: Test Accuracy: `96.49%` | Test ROC-AUC: **`0.9954`** | Gap: `1.97%` (Best generalizer)
