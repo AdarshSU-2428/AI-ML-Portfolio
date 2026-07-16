@@ -35,7 +35,6 @@ Every notebook focuses on:
 * Building intuition first
 * Understanding the problem it solves
 * Learning the mathematical idea (only where necessary)
-* Implementing it from scratch
 * Applying it on real-world datasets
 
 ---
@@ -196,6 +195,7 @@ AI-ML_2027/
 * Seaborn
 * Scikit-Learn
 * LightGBM
+* XGBoost
 
 ---
 
@@ -235,7 +235,7 @@ If this repository helps you learn something new:
 
 # 👨‍💻 About Me
 
-**Adarsh Sahoo**
+**Adarsh S. Sahoo**
 
 🎓 Computer Science & Engineering Student
 
