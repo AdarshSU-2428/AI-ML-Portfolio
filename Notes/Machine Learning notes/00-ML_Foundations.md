@@ -21,6 +21,8 @@ By the end of this notebook, you will understand:
 - [ ] 🔄 ML Workflow
 - [ ] 📊 Dataset Terminology
 - [ ] ⚖️ Feature Scaling
+- [ ] ⚠️ Data Leakage
+- [ ] 🏷️ Encoding
 - [ ] 📈 Evaluation Metrics
 - [ ] 📉 Overfitting vs. Underfitting
 - [ ] 🎯 Bias-Variance Tradeoff
@@ -165,9 +167,60 @@ To fix this, we scale our features so they are on the same level:
 *   **Standardization (Z-score Normalization):** Centers the data around 0. It transforms features to have a mean of 0 and a standard deviation (variance) of 1.
 *   **Normalization (Min-Max Scaling):** Compresses all values to fit strictly between `0` and `1` (e.g., 0 = minimum value, 1 = maximum value).
 
+> [!IMPORTANT]
+> **Always split the dataset before applying any preprocessing technique that learns from the data.**
+> 
+> This includes:
+> - `StandardScaler`
+> - `MinMaxScaler`
+> - `PCA`
+> - Feature Selection
+> - Imputation
+> 
+> *Only fit on training data. Never fit on test data.*
+
 ---
 
-## 🏷️ 08. Encoding
+## ⚠️ 08. Data Leakage
+
+Data leakage occurs when information from the testing dataset accidentally influences the training process. 
+
+This causes the model to appear much more accurate than it actually is during evaluation, but it will perform poorly in real-world deployment.
+
+### ❌ The Wrong Way
+```python
+scaler.fit_transform(X)
+# ↓
+train_test_split()
+```
+*Why this is bad:* The scaler has already seen the test data. This leaks information from the test set into the training set.
+
+### ✅ The Correct Way
+```python
+# 1. Split first
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+# 2. Fit and transform the training data
+X_train_scaled = scaler.fit_transform(X_train)
+
+# 3. Transform the test data (never fit!)
+X_test_scaled = scaler.transform(X_test)
+```
+*Notice:* We never fit the scaler on test data.
+
+### Common Sources of Data Leakage
+*   ❌ Scaling before train-test split
+*   ❌ PCA before train-test split
+*   ❌ Feature Selection before split
+*   ❌ Data Imputation before split
+*   ❌ Target Encoding using entire dataset
+
+> [!TIP]
+> **Golden Rule:** Anything that learns from data must be fit and transformed only on the training set (e.g., using `fit_transform`). Then, apply the learned transformation (using `transform` only) to the test set.
+
+---
+
+## 🏷️ 09. Encoding
 
 Computers only understand numbers, not text. If a column contains words, we must **encode** them:
 
@@ -180,23 +233,116 @@ Computers only understand numbers, not text. If a column contains words, we must
 
 ---
 
-## 📈 09. Evaluation Metrics
+## 📈 10. Evaluation Metrics
 
-How do we know if our model did a good job?
+Machine Learning models are evaluated differently depending on the type of problem.
 
-### For Regression (Numeric Output)
-*   **MAE (Mean Absolute Error):** On average, how far off are our predictions? (E.g., "Our house predictions are off by $5,000 on average").
-*   **RMSE (Root Mean Squared Error):** Similar to MAE, but penalizes large errors much more heavily.
-
-### For Classification (Categorical Output)
-*   **Accuracy:** The percentage of correct predictions. (E.g., "The spam filter caught 95% of emails correctly").
-*   **Precision:** Out of all predicted positives, how many were actually positive? (Crucial when false alarms are bad).
-*   **Recall:** Out of all actual positives, how many did we successfully find? (Crucial when missing a positive is dangerous, like diagnosing a disease).
-*   **F1-Score:** The harmonic average of Precision and Recall.
+*   **Regression** $\rightarrow$ Predicts continuous numerical values.
+*   **Classification** $\rightarrow$ Predicts categories/classes.
 
 ---
 
-## 📉 10. Overfitting vs Underfitting
+### 📈 Regression Metrics
+
+Regression models predict continuous values (e.g., House Price Prediction, Stock Price Prediction, Temperature Prediction).
+
+#### 1. Mean Absolute Error (MAE)
+*   **Formula:**
+    $$\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$$
+    Where:
+    *   $y_i$ = Actual value
+    *   $\hat{y}_i$ = Predicted value
+*   **Intuition:** Average absolute difference between prediction and actual value.
+*   **Example:** "Our house price predictions are off by ₹50,000 on average."
+*   **Rule:** Lower is Better ✅
+
+#### 2. Mean Squared Error (MSE)
+*   **Formula:**
+    $$\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$$
+*   **Intuition:** Squares every error before averaging. Large errors receive much larger penalties.
+*   **Rule:** Lower is Better ✅
+
+#### 3. Root Mean Squared Error (RMSE)
+*   **Formula:**
+    $$\text{RMSE} = \sqrt{\text{MSE}}$$
+*   **Intuition:** Same as MSE but converted back into the original unit.
+*   **Example:** House prices are in rupees. RMSE is also in rupees, making it much easier to interpret.
+*   **Rule:** Lower is Better ✅
+
+#### 4. $R^2$ Score (Coefficient of Determination)
+*   **Formula:**
+    $$R^2 = 1 - \frac{SS_{\text{Residual}}}{SS_{\text{Total}}}$$
+    Where:
+    *   $SS_{\text{Residual}} = \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$
+    *   $SS_{\text{Total}} = \sum_{i=1}^{n} (y_i - \bar{y})^2$
+*   **Intuition:** Measures how much variance in the data is explained by the model.
+*   **Example:** $R^2 = 0.92$ means the model explains 92% of the variance in the target variable.
+*   **Rule:** Higher is Better ✅
+*   **Range:**
+    *   `1` $\rightarrow$ Perfect model
+    *   `0` $\rightarrow$ Same as predicting the mean
+    *   `< 0` $\rightarrow$ Worse than predicting the mean
+
+#### 5. Adjusted $R^2$
+*   **Formula:**
+    $$\text{Adjusted } R^2 = 1 - \left[ \frac{(1 - R^2)(n - 1)}{n - p - 1} \right]$$
+    Where:
+    *   $n$ = number of samples
+    *   $p$ = number of features
+*   **Intuition:** Unlike $R^2$, Adjusted $R^2$ penalizes unnecessary features. Adding useless features will always increase or maintain $R^2$, but Adjusted $R^2$ may decrease.
+*   **Rule:** Preferred when comparing models with different numbers of features.
+
+---
+
+### 🎯 Classification Metrics
+
+Classification predicts categories (e.g., Spam Detection, Disease Prediction, Fraud Detection).
+
+#### 1. Accuracy
+*   **Formula:**
+    $$\text{Accuracy} = \frac{\text{TP} + \text{TN}}{\text{TP} + \text{TN} + \text{FP} + \text{FN}}$$
+*   **Intuition:** Percentage of correctly classified samples.
+*   **Rule:** Higher is Better ✅
+
+#### 2. Precision
+*   **Formula:**
+    $$\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}$$
+*   **Intuition:** Out of all predicted positives, how many were actually positive? Important when false alarms are expensive.
+*   **Example:** Spam detection (we don't want to classify important emails as spam).
+
+#### 3. Recall (Sensitivity / True Positive Rate)
+*   **Formula:**
+    $$\text{Recall} = \frac{\text{TP}}{\text{TP} + \text{FN}}$$
+*   **Intuition:** Out of all actual positives, how many did we correctly identify? Important when missing a positive is dangerous.
+*   **Example:** Cancer detection or Fraud detection.
+
+#### 4. F1 Score
+*   **Formula:**
+    $$\text{F1} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
+*   **Intuition:** Balances Precision and Recall (Harmonic Mean). Useful when classes are imbalanced.
+
+---
+
+### 📈 ROC-AUC Curve
+
+*   **ROC (Receiver Operating Characteristic) Curve:** Plots the **True Positive Rate (Recall)** against the **False Positive Rate (FPR)** across different classification thresholds.
+    *   **True Positive Rate (TPR):**
+        $$\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}}$$
+    *   **False Positive Rate (FPR):**
+        $$\text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}}$$
+*   **AUC (Area Under the Curve):** Summarizes the ROC curve into a single number representing how well the classifier separates positive and negative classes.
+    *   **Range:**
+        *   `1.0` $\rightarrow$ Perfect classifier
+        *   `0.9` $\rightarrow$ Excellent
+        *   `0.8` $\rightarrow$ Good
+        *   `0.5` $\rightarrow$ Random guessing
+    *   **Rule:** Higher is Better ✅
+*   **Intuition:** Instead of measuring performance at only one threshold (like Accuracy), ROC evaluates the classifier over all possible thresholds. Therefore, ROC-AUC is especially useful when dealing with imbalanced datasets.
+*   **Example:** Suppose a disease prediction model outputs probabilities. Changing the classification threshold from `0.5` to `0.3` increases Recall (detects more cases) but may reduce Precision (more false positives). The ROC curve shows this trade-off.
+
+---
+
+## 📉 11. Overfitting vs Underfitting
 
 *   **The Studying Analogy:**
     *   **Underfitting (Didn't Study):** The student did not study at all. They score poorly on homework and fail the exam. (The model is too simple).
@@ -217,7 +363,7 @@ How do we know if our model did a good job?
 
 ---
 
-## 🎯 11. Bias-Variance Tradeoff
+## 🎯 12. Bias-Variance Tradeoff
 
 *   **Bias:** Simplistic assumptions made by the model. High bias leads to **Underfitting** (e.g., trying to fit a straight line to curved data).
 *   **Variance:** Sensitivity to tiny fluctuations in the training data. High variance leads to **Overfitting** (e.g., drawing a chaotic squiggly line to fit every single data point).
@@ -226,7 +372,7 @@ How do we know if our model did a good job?
 
 ---
 
-## ⚙️ 12. Complete Machine Learning Pipeline
+## ⚙️ 13. Complete Machine Learning Pipeline
 
 Putting it all together, a standard machine learning pipeline runs like this:
 
