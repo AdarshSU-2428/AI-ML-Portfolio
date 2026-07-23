@@ -8,7 +8,7 @@
 
 What makes Adam so powerful? It combines the best ideas from two previous optimization algorithms into a single unified formula:
 
-$$\text{Adam} = \text{Momentum (Direction \& Speed)} + \text{RMSProp (Adaptive Step Size)}$$
+$$\text{Adam} = \text{Momentum (Direction + Speed)} + \text{RMSProp (Adaptive Step Size)}$$
 
 1. **Momentum Component (1st Moment):** Keeps a running average of past gradients to maintain direction and roll over small bumps.
 2. **RMSProp Component (2nd Moment):** Keeps a running average of past *squared* gradients to adaptively scale step sizes per parameter.
