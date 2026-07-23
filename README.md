@@ -120,6 +120,8 @@ Every topic in this repository includes:
 
 # 🧠 Deep Learning *(Coming Soon)*
 
+> 📍 **Detailed Path:** Refer to the comprehensive [Deep Learning Roadmap](./Deep%20Learning/Roadmap) for topics, checkpoints, and projects.
+
 * Artificial Neural Networks (ANN)
 * Backpropagation
 * Optimization Algorithms
