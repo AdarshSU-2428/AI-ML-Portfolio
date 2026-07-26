@@ -4,9 +4,10 @@
 
 ## 📌 Executive Summary
 
-This document provides a comprehensive technical reference for two Artificial Neural Network implementations:
+This document provides a comprehensive technical reference for three Artificial Neural Network implementations:
 1. **NumPy Implementation From Scratch (`ANN_scratch.py`)**: A fundamental 2-layer ANN built using pure Python and NumPy to demystify matrix math, forward propagation, manual backpropagation, chain rule calculus, and gradient descent.
-2. **Production PyTorch Real-Dataset Implementation (`Real_dataset_implementation.ipynb`)**: A professional, end-to-end deep learning pipeline on tabular data ([adult_income.csv](adult_income.csv)) featuring scikit-learn preprocessing, stratified 3-way data splitting, PyTorch `DataLoader` batching, Early Stopping, and complete evaluation metrics.
+2. **Standard PyTorch Implementation (`Real_dataset_implementation.ipynb`)**: A production deep learning pipeline on tabular data ([adult_income.csv](adult_income.csv)) using scikit-learn preprocessing, stratified 3-way data splitting, PyTorch `DataLoader` batching, default PyTorch layer initialization, and Early Stopping.
+3. **PyTorch Implementation with Kaiming Weight Initialization (`Real_dataset_with_weight_initialization.ipynb`)**: An enhanced deep learning pipeline introducing explicit **Kaiming (He) Normal Weight Initialization** (`nn.init.kaiming_normal_`) and zero bias initialization to optimize convergence stability for ReLU layers.
 
 ---
 
@@ -37,41 +38,10 @@ $$\sigma(z) = \frac{1}{1 + e^{-z}}$$
 
 #### **3. Loss Function (Mean Squared Error)**
 $$L(y, \hat{y}) = \frac{1}{N} \sum_{i=1}^{N} (\hat{y}_i - y_i)^2$$
-- **Derivative with respect to Output Activation $\mathbf{A}_2$:**
-  $$\frac{\partial L}{\partial \mathbf{A}_2} = \frac{2}{N} (\mathbf{A}_2 - y)$$
-
-#### **4. Backpropagation & Chain Rule Derivations**
-
-* **Output Layer (Layer 2) Gradients:**
-  $$\delta_2 = \frac{\partial L}{\partial \mathbf{Z}_2} = \frac{\partial L}{\partial \mathbf{A}_2} \odot \sigma'(\mathbf{Z}_2) = \frac{2}{N} (\mathbf{A}_2 - y) \odot \mathbf{A}_2 (1 - \mathbf{A}_2)$$
-  $$\nabla_{\mathbf{W}_2} L = \mathbf{A}_1^T \delta_2, \quad \nabla_{\mathbf{b}_2} L = \sum_{\text{rows}} \delta_2$$
-
-* **Hidden Layer (Layer 1) Gradients:**
-  $$\delta_1 = \frac{\partial L}{\partial \mathbf{Z}_1} = (\delta_2 \mathbf{W}_2^T) \odot \sigma'(\mathbf{A}_1) = (\delta_2 \mathbf{W}_2^T) \odot \mathbf{A}_1 (1 - \mathbf{A}_1)$$
-  $$\nabla_{\mathbf{W}_1} L = \mathbf{X}^T \delta_1, \quad \nabla_{\mathbf{b}_1} L = \sum_{\text{rows}} \delta_1$$
-
-#### **5. Parameter Updates (Gradient Descent)**
-$$\mathbf{W}_2 \leftarrow \mathbf{W}_2 - \alpha \nabla_{\mathbf{W}_2} L, \quad \mathbf{b}_2 \leftarrow \mathbf{b}_2 - \alpha \nabla_{\mathbf{b}_2} L$$
-$$\mathbf{W}_1 \leftarrow \mathbf{W}_1 - \alpha \nabla_{\mathbf{W}_1} L, \quad \mathbf{b}_1 \leftarrow \mathbf{b}_1 - \alpha \nabla_{\mathbf{b}_1} L$$
-*(where $\alpha$ is the learning rate)*.
 
 ---
 
-### 1.3 Code Structure & Implementation Details (`ANN_scratch.py`)
-
-| Method / Variable | Description & Formula |
-| :--- | :--- |
-| `__init__(input_size, hidden_size, output_size, learning_rate)` | Randomly initializes weights $\mathbf{W}_1, \mathbf{W}_2$ using Gaussian distribution (`np.random.randn`) and biases $\mathbf{b}_1, \mathbf{b}_2$ to zeros. |
-| `sigmoid(x)` | Implements $\frac{1}{1 + e^{-x}}$. |
-| `sigmoid_derivative(output)` | Computes $\text{output} \times (1 - \text{output})$. |
-| `mse_loss(y_true, y_pred)` | Computes Mean Squared Error $\text{np.mean}((y - \hat{y})^2)$. |
-| `mse_loss_derivative(y_true, y_pred)` | Computes $\frac{2}{N}(\hat{y} - y)$. |
-| `forward(X)` | Performs matrix multiplication and activation through hidden and output layers. |
-| `backward(X, y)` | Computes gradients via chain rule and updates weights/biases using gradient descent. |
-| `training_loop(X, y, epochs)` | Runs training for specified epochs (e.g. 5,000 epochs) and prints loss every 500 steps. |
-| `predict(X)` | Applies 0.5 threshold (`np.round`) to predicted probabilities to yield binary 0/1 outputs. |
-
-#### **Execution Results on XOR Gate:**
+### 1.3 Execution Results (`ANN_scratch.py`)
 ```text
 Epoch    0 | Loss = 0.347522
 Epoch 1000 | Loss = 0.088241
@@ -88,113 +58,118 @@ Predictions:
 
 ---
 
-## 🚀 Part 2: Real-World PyTorch ANN Implementation (`Real_dataset_implementation.ipynb`)
+## 🚀 Part 2: Standard PyTorch ANN Implementation (`Real_dataset_implementation.ipynb`)
 
-### 2.1 Overview & Dataset Specifications
+### 2.1 Overview & Pipeline Architecture
 - **File:** [Real_dataset_implementation.ipynb](Real_dataset_implementation.ipynb)
-- **Dataset:** [adult_income.csv](adult_income.csv) (32,561 rows, 15 columns).
-- **Goal:** Binary classification predicting whether an individual earns `>50K` (Class 1) or `<=50K` (Class 0).
+- **Dataset:** [adult_income.csv](adult_income.csv) (32,537 clean rows after purging 24 duplicates).
+- **Goal:** Binary classification predicting whether annual income exceeds `$50K` (`<=50K` vs `>50K`).
+- **Preprocessing:** `ColumnTransformer` applying `StandardScaler` (6 numeric features) and `OneHotEncoder` (8 categorical features), expanding input space to **108 features**.
+- **Data Splitting:** Stratified 3-way split (**80% Train**, **10% Validation**, **10% Test**).
+- **Architecture:** 3-layer network (`108 -> 64 (ReLU) -> 32 (ReLU) -> 1 (Logit)`).
 
 ---
 
-### 2.2 Step-by-Step Pipeline Architecture
+### 2.2 Model Performance Results (`Real_dataset_implementation.ipynb`)
 
-```mermaid
-flowchart TD
-    A["Raw Data (adult_income.csv)"] --> B["Data Cleaning: Skip Initial Spaces, Fill '?' with 'Unknown', Drop 24 Duplicates"]
-    B --> C["Feature & Target Separation: X (14 Features), y (0 / 1)"]
-    C --> D["Stratified 3-Way Split: Train 80%, Validation 10%, Test 10%"]
-    D --> E["ColumnTransformer: StandardScaler (Numericals) + OneHotEncoder (Categoricals) -> 108 Features"]
-    E --> F["PyTorch Tensors & DataLoaders (batch_size=128)"]
-    F --> G["AdultANN Model: 108 -> 64 (ReLU) -> 32 (ReLU) -> 1 (Logit)"]
-    G --> H["Training Loop: BCEWithLogitsLoss + Adam (lr=0.001) + Early Stopping"]
-    H --> I["Test Set Evaluation: Accuracy, Precision, Recall, F1-Score, Confusion Matrix"]
+```text
+Final Test Results:
+- Accuracy:  86.54%
+- Precision: 74.30%
+- Recall:    67.47%
+- F1-Score:  0.7072
+
+Confusion Matrix:
+[[2287  183]
+ [ 255  529]]
 ```
 
 ---
 
-### 2.3 Key Implementation Steps
+## ⚡ Part 3: PyTorch ANN with Kaiming Weight Initialization (`Real_dataset_with_weight_initialization.ipynb`)
 
-#### **1. Data Cleaning & Missing Value Imputation**
-- **Whitespace Handling:** `pd.read_csv(..., skipinitialspace=True)` removes spaces following commas.
-- **Duplicate Removal:** Removed 24 duplicate records (`df.drop_duplicates()`), preserving 32,537 unique rows.
-- **Missing Value Handling:** Missing values (`'?'`) in `workclass` (1,836), `occupation` (1,843), and `native-country` (582) were filled with `'Unknown'`, creating explicit indicator categories during encoding.
+### 3.1 Overview & Key Architectural Enhancements
+- **File:** [Real_dataset_with_weight_initialization.ipynb](Real_dataset_with_weight_initialization.ipynb)
+- **What Changed:** Introduced an explicit `initialize_weights()` method inside the `AdultANN` class to initialize layer parameters before training.
 
-#### **2. Stratified 3-Way Data Partitioning**
-To ensure unbiased evaluation and prevent data leakage:
-- **Train Set (80%):** 26,029 samples
-- **Validation Set (10%):** 3,254 samples
-- **Test Set (10%):** 3,254 samples
-- `stratify=y` maintains the ~75.9% / ~24.1% target class distribution across all splits.
-
-#### **3. Preprocessing via ColumnTransformer**
-- **Numerical Features (6 cols):** `age`, `fnlwgt`, `education-num`, `capital-gain`, `capital-loss`, `hours-per-week` $\rightarrow$ Standardized via `StandardScaler()`.
-- **Categorical Features (8 cols):** `workclass`, `education`, `marital-status`, `occupation`, `relationship`, `race`, `sex`, `native-country` $\rightarrow$ One-Hot encoded via `OneHotEncoder(sparse_output=False, handle_unknown='ignore')`.
-- **Expanded Dimension:** 14 raw columns expand to **108 dense features**.
-- **Data Leakage Prevention:** `fit_transform` performed exclusively on `X_train`, while `transform` is applied to `X_val` and `X_test`.
-
-#### **4. PyTorch Model Architecture (`AdultANN`)**
 ```python
 class AdultANN(nn.Module):
     def __init__(self, input_size):
         super().__init__()
-        self.fc1 = nn.Linear(input_size, 64)  # 108 -> 64
-        self.fc2 = nn.Linear(64, 32)          # 64 -> 32
-        self.fc3 = nn.Linear(32, 1)           # 32 -> 1 (Raw Output Logit)
+        self.fc1 = nn.Linear(input_size, 64)
+        self.fc2 = nn.Linear(64, 32)
+        self.fc3 = nn.Linear(32, 1)
         self.relu = nn.ReLU()
 
-    def forward(self, x):
-        x = self.relu(self.fc1(x))
-        x = self.relu(self.fc2(x))
-        return self.fc3(x)
-```
+        self.initialize_weights()
 
-#### **5. Loss Function, Optimizer & Early Stopping**
-- **Loss Function:** `nn.BCEWithLogitsLoss()` (combines Sigmoid and Binary Cross Entropy in a numerically stable way).
-- **Optimizer:** `torch.optim.Adam(model.parameters(), lr=0.001)`.
-- **Early Stopping:** Tracks `avg_val_loss` with `patience=5`. Automatically clones and restores the best state dict `{k: v.clone() for k, v in model.state_dict().items()}` upon training completion.
+    def initialize_weights(self):
+        # Kaiming (He) Normal Initialization for ReLU activation layers
+        nn.init.kaiming_normal_(
+            self.fc1.weight,
+            mode="fan_in",
+            nonlinearity="relu"
+        )
+        nn.init.kaiming_normal_(
+            self.fc2.weight,
+            mode="fan_in",
+            nonlinearity="relu"
+        )
+        # Initialize biases to zero
+        nn.init.zeros_(self.fc1.bias)
+        nn.init.zeros_(self.fc2.bias)
+```
 
 ---
 
-### 2.4 Final Model Performance & Results
+### 3.2 Impact of Kaiming (He) Normal Initialization
+1. **Mathematical Principle:** Kaiming initialization samples weights from a Gaussian distribution with zero mean and variance:
+   $$\text{Var}(W) = \frac{2}{\text{fan\_in}}$$
+   This accounts for the fact that ReLU zeroes out half of its inputs on average, preserving gradient variance across deep layers.
+2. **Accelerated Convergence:**
+   - The validation loss rapidly dropped to its global minimum of **0.3028** by **Epoch 3** (compared to Epoch 4 in default initialization).
+   - Early stopping triggered cleanly at **Epoch 8** (restoring optimal Epoch 3 parameters).
+
+---
+
+### 3.3 Model Performance Results (`Real_dataset_with_weight_initialization.ipynb`)
 
 ```text
 Final Test Results:
-- Accuracy:  86.57%
-- Precision: 74.20%
-- Recall:    67.86%
-- F1-Score:  0.7089
+- Accuracy:  86.36%
+- Precision: 73.74%
+- Recall:    67.35%
+- F1-Score:  0.7040
 
 Confusion Matrix:
-[[2285  185]
- [ 252  532]]
+[[2282  188]
+ [ 256  528]]
 ```
 
 ---
 
-## 📊 Part 3: Comprehensive Comparison & Key Insights
+## 📊 Part 4: 3-Way Implementation Comparison & Summary
 
-### 3.1 NumPy Scratch vs. PyTorch Framework Comparison
+### 4.1 Side-by-Side Comparison Table
 
-| Dimension | NumPy Implementation (`ANN_scratch.py`) | PyTorch Implementation (`Real_dataset_implementation.ipynb`) |
-| :--- | :--- | :--- |
-| **Primary Goal** | Fundamental Understanding of Math & Derivatives | Scalable Production Deep Learning Pipeline |
-| **Gradient Computation** | Manual Calculus (Chain Rule Matrix Operations) | Automatic Differentiation Engine (`autograd`) |
-| **Activation Functions** | Manual Sigmoid & Sigmoid Derivative | PyTorch Built-in `nn.ReLU()`, `torch.sigmoid()` |
-| **Loss Functions** | Manual Mean Squared Error (MSE) | Numerically Stable `nn.BCEWithLogitsLoss()` |
-| **Optimizer** | Vanilla Gradient Descent ($\mathbf{W} \leftarrow \mathbf{W} - \alpha \nabla_{\mathbf{W}} L$) | Adaptive Moment Estimation (`torch.optim.Adam`) |
-| **Data Pipelines** | Raw NumPy Matrices | Scikit-learn `ColumnTransformer` + PyTorch `DataLoader` |
-| **Evaluation Metrics** | Manual MSE & Binary Accuracy | Scikit-learn Accuracy, Precision, Recall, F1, Confusion Matrix |
-| **Hardware Execution** | Single-threaded CPU | Seamless CPU / CUDA GPU Switching (`.to(device)`) |
+| Dimension | NumPy Scratch (`ANN_scratch.py`) | Standard PyTorch (`Real_dataset_implementation.ipynb`) | PyTorch + Kaiming Init (`Real_dataset_with_weight_initialization.ipynb`) |
+| :--- | :--- | :--- | :--- |
+| **Primary Focus** | Mathematical Fundamentals & Chain Rule | Scalable Deep Learning Pipeline | Optimized Parameter Initialization & Convergence |
+| **Dataset & Task** | XOR Gate (4 Samples) | Adult Income (32,537 Rows, 108 Cols) | Adult Income (32,537 Rows, 108 Cols) |
+| **Weight Initialization** | Gaussian Random (`np.random.randn`) | PyTorch Default Uniform | **Kaiming (He) Normal (`nn.init.kaiming_normal_`)** |
+| **Bias Initialization** | Zero (`np.zeros`) | PyTorch Default Uniform | **Zero Initialization (`nn.init.zeros_`)** |
+| **Activation Functions** | Sigmoid | ReLU (Hidden) + Raw Logit (Output) | ReLU (Hidden) + Raw Logit (Output) |
+| **Convergence Point** | ~3,000 Epochs | Lowest Val Loss at Epoch 4 (0.3037) | **Lowest Val Loss at Epoch 3 (0.3028)** |
+| **Test Accuracy** | 100% (XOR) | **86.54%** | **86.36%** |
+| **Test Precision** | N/A | **74.30%** | **73.74%** |
+| **Test Recall** | N/A | **67.47%** | **67.35%** |
+| **Test F1-Score** | N/A | **0.7072** | **0.7040** |
 
 ---
 
-### 3.2 Summary of Key Data Insights
+### 4.2 Summary of Key Insights
 
-1. **Class Imbalance Management:**
-   - The Adult Income dataset exhibits a **~75.9% (`<=50K`) vs ~24.1% (`>50K`)** imbalance.
-   - High accuracy (86.57%) alone is not enough; evaluating **Precision (74.20%)**, **Recall (67.86%)**, and **F1-Score (0.7089)** is essential to verify that high earners are accurately detected.
-2. **Preprocessing Impact:**
-   - Standard scaling numerical variables and one-hot encoding categoricals expanded input features from **14 to 108**, enabling linear layers to learn smooth non-linear boundaries.
-3. **Generalization & Early Stopping:**
-   - The training loss steadily decreased from `0.3891` to `0.2813`, while validation loss stabilized near `0.3050`. Early stopping effectively prevented overfitting and restored optimal weights.
+1. **Explicit Weight Initialization Matters:**
+   - Applying **Kaiming (He) Normal initialization** prevents vanishing/exploding gradients in networks using ReLU activation functions, stabilizing gradient flow and leading to faster early convergence (Epoch 3 vs Epoch 4).
+2. **Robust Real-World Pipeline Strategy:**
+   - Combining stratified 3-way data splitting, `ColumnTransformer` preprocessing, PyTorch mini-batch `DataLoaders`, and early stopping ensures strong generalization performance (~86.5% accuracy, ~0.707 F1-score) on real-world imbalanced tabular data.
