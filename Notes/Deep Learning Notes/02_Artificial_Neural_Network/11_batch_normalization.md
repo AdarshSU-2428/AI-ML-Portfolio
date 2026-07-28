@@ -87,6 +87,37 @@ Input ──> Linear Layer ──> BatchNorm1d ──> ReLU Activation ──> N
 - BatchNorm computes mean $\mu_{\mathcal{B}}$ and variance $\sigma_{\mathcal{B}}^2$ directly from the **current mini-batch**.
 - Simultaneously, it updates a running exponential moving average of population mean ($\mu_{\text{running}}$) and variance ($\sigma_{\text{running}}^2$) across training steps.
 
+### 🔄 Parameter Update Flow Across Mini-Batches
+During training, parameters ($W, b, \gamma, \beta$) persist and are updated sequentially across consecutive mini-batches:
+
+```text
+Batch 1: Forward Pass (W, b, γ, β) ──> Loss ──> Backpropagation ──> optimizer.step() ──> Updated W, b, γ, β
+                                                                                               │
+Batch 2: Forward Pass (uses updated W, b, γ, β) ──> Loss ──> Backpropagation ──> optimizer.step() ──> Updated again
+                                                                                               │
+Batch 3: Forward Pass (uses newly updated W, b, γ, β) ──> ...
+```
+
+#### Concrete Example ($\gamma$ and $\beta$ updates):
+- **Initial Values:** $\gamma = 1.000$, $\beta = 0.000$
+- **After Batch 1:** Backprop & gradients update parameters to $\gamma = 0.998$, $\beta = 0.003$
+- **Batch 2:** Uses $\gamma = 0.998$ and $\beta = 0.003$ in its forward pass, computes new gradients, and updates them again for Batch 3!
+
+---
+
+### 🚨 Critical Distinction: Learnable Parameters vs. Batch Statistics
+
+> [!IMPORTANT]
+> **Do not mix up $\gamma / \beta$ with the mini-batch mean/variance!**
+
+| Concept | What is it? | How is it computed/updated? | Behavior Across Batches |
+| :--- | :--- | :--- | :--- |
+| **Learnable Parameters ($\gamma, \beta$)** | Scaling & shifting parameters of BatchNorm | Updated via **backpropagation & `optimizer.step()`** | **Carried forward** and continuously updated between batches |
+| **Mini-Batch Stats ($\mu_{\mathcal{B}}, \sigma_{\mathcal{B}}^2$)** | Mean & variance of the current mini-batch | Calculated **fresh** for every new mini-batch | **Not carried forward**; recalculated for each batch |
+| **Running Stats ($\mu_{\text{running}}, \sigma_{\text{running}}^2$)** | Exponential moving average across training | Updated continuously via **moving average** during training | Maintained across training and **frozen for `model.eval()`** during validation/testing |
+
+---
+
 ### During Testing / Inference (`model.eval()`)
 - When predicting on a single test sample ($m=1$), we cannot compute a batch mean or variance!
 - Instead, BatchNorm freezes its parameters and uses the **fixed running statistics** ($\mu_{\text{running}}, \sigma_{\text{running}}^2$) accumulated during training.
