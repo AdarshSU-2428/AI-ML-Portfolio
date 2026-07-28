@@ -163,8 +163,6 @@ Beginners often confuse **Adaptive Optimizers** (like Adam) with **Learning Rate
 > **Crucial Difference in `scheduler.step()`:**
 > - Standard schedulers (`StepLR`, `CosineAnnealingLR`) are called **without arguments**: `scheduler.step()`
 > - `ReduceLROnPlateau` **REQUIRES the metric argument**: `scheduler.step(avg_val_loss)`
-> 
-> **Common Mistake:** Calling `scheduler.step(val_loss)` when your loop variable is named `avg_val_loss` raises a `NameError: name 'val_loss' is not defined`.
 
 ---
 
