@@ -227,7 +227,7 @@ When designing or debugging CNN architectures in PyTorch, apply these rules:
 4. **Flatten Layer:**
    * Converts $[N, C, H, W] \to [N, C \times H \times W]$. Batch dimension is preserved!
 5. **Linear Layer:**
-   * Converts $[N, \text{in\_features}] \to [N, \text{out\_features}]$.
+   * Converts `[N, in_features]` $\to$ `[N, out_features]`.
 
 > **Golden Architectural Pattern:**  
 > In modern CNNs, spatial dimensions decrease while channels increase:
