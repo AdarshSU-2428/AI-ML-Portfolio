@@ -44,10 +44,82 @@ Max Pooling (2x2 Window, Stride 2):
 
 ---
 
-### C. Global Average Pooling (`nn.AdaptiveAvgPool2d(1)`)
-* **How it works:** Reduces the spatial dimension of each feature map from $[H, W]$ directly down to $1 \times 1$ by taking the average across the entire feature map.
-* **Use Case:** Replaces massive Fully Connected layers at the end of modern CNN architectures (like ResNet), drastically reducing overall model parameters and overfitting risk.
-* **Shape Transformation:** $[N, C, H, W] \xrightarrow{\text{GAP}} [N, C, 1, 1]$.
+### C. Global Average Pooling (GAP) — `nn.AdaptiveAvgPool2d((1, 1))`
+
+**Global Average Pooling (GAP)** is a specialized pooling operation introduced by Min Lin et al. (2013) in the *Network in Network* paper and popularized by modern architectures like **ResNet**, **Inception**, and **MobileNet**.
+
+#### How GAP Works:
+Instead of sliding a small $2 \times 2$ window, GAP takes the arithmetic average of **every single value across the entire spatial height ($H$) and width ($W$)** for each channel independently.
+
+```
+Feature Map for Channel c [H x W]:          Global Average Pooling:
+┌───┬───┬───┬───┐
+│ 2 │ 4 │ 1 │ 3 │
+├───┼───┼───┼───┤
+│ 0 │ 6 │ 2 │ 4 │  ──────►  Take Average of ALL 16 values  ──────►  [ 3.0 ]  (Single 1x1 Value)
+├───┼───┼───┼───┤           (Sum = 48 / 16 = 3.0)
+│ 5 │ 1 │ 7 │ 1 │
+├───┼───┼───┼───┤
+│ 3 │ 2 │ 4 │ 2 │
+└───┴───┴───┴───┘
+```
+
+#### Mathematical Formula:
+For a feature map of spatial dimensions $H \times W$ in channel $c$:
+
+$$\text{GAP}(c) = \frac{1}{H \times W} \sum_{i=1}^{H} \sum_{j=1}^{W} X_{c, i, j}$$
+
+#### Shape Transformation:
+$$[N, C, H, W] \xrightarrow{\text{GAP}} [N, C, 1, 1] \xrightarrow{\text{Flatten(1)}} [N, C]$$
+
+---
+
+#### Why GAP Revolutionized Modern CNNs (Replacing Heavy Flatten + FC Layers)
+
+In older traditional CNNs (such as **AlexNet** and **VGG**), feature maps were flattened into massive 1D vectors and passed to heavy Fully Connected (Linear) layers:
+
+```
+TRADITIONAL CNN (AlexNet / VGG):
+Conv Feature Maps [N, 512, 7, 7]  ──►  Flatten  ──►  [N, 25,088]  ──►  Linear(25088, 4096)
+                                                                       ▲
+                                                                       └─ 102.7 MILLION PARAMETERS!
+                                                                          (Massive Overfitting Risk!)
+
+MODERN CNN (ResNet / MobileNet):
+Conv Feature Maps [N, 512, 7, 7]  ──►  GAP (1x1) ──►  [N, 512, 1, 1] ──►  Linear(512, 10)
+                                                                       ▲
+                                                                       └─ ONLY 5,120 PARAMETERS!
+                                                                          (99.9% Parameter Reduction!)
+```
+
+---
+
+#### Key Advantages of Global Average Pooling:
+
+1. **Drastic Parameter Reduction:** Replaces tens of millions of dense fully connected weights with 0 parameters, dramatically eliminating overfitting risk.
+2. **Input Size Flexibility:** Traditional Linear layers require a fixed input vector size (e.g., $25,088$). GAP computes the spatial average regardless of the incoming $H \times W$ resolution, allowing networks to process arbitrary image input sizes during inference!
+3. **Enhanced Interpretability:** Each feature map channel corresponds to a high-level category response. GAP acts as a direct link between spatial feature maps and final class categories.
+4. **Zero Hyperparameters:** Requires no kernel size, stride, or padding tuning.
+
+#### PyTorch Implementation:
+```python
+import torch
+import torch.nn as nn
+
+# Suppose feature map output from final conv layer is [Batch=64, Channels=512, H=7, W=7]
+conv_out = torch.randn(64, 512, 7, 7)
+
+# Apply Global Average Pooling
+gap = nn.AdaptiveAvgPool2d((1, 1))
+pooled = gap(conv_out)         # Shape: [64, 512, 1, 1]
+
+# Squeeze spatial dimensions for final classification
+flat = torch.flatten(pooled, 1) # Shape: [64, 512]
+
+# Final classifier layer
+fc = nn.Linear(512, 10)
+logits = fc(flat)               # Shape: [64, 10]
+```
 
 ---
 
