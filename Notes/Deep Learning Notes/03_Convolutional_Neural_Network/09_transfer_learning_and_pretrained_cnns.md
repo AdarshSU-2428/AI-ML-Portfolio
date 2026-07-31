@@ -89,7 +89,7 @@ optimizer = torch.optim.Adam([
 Use this $2 \times 2$ decision matrix based on your target dataset characteristics:
 
 ```
-                            TARGET DATASET SIMILARITY TO IMAGENET
+                                TARGET DATASET SIMILARITY TO IMAGENET
                                High Similarity           Low Similarity
                          ┌────────────────────────┬────────────────────────┐
                          │   Feature Extraction   │   Feature Extraction   │
@@ -97,8 +97,9 @@ Use this $2 \times 2$ decision matrix based on your target dataset characteristi
                          │   Train FC Head Only)  │   or Retrain Head)     │
 TARGET                   ├────────────────────────┼────────────────────────┤
 DATASET                  │     Fine-Tuning        │   Train From Scratch   │
-SIZE     Large Dataset   │   (Unfreeze Deep     │   or Fine-Tune Entire  │
-                         │    Layers with Small LR)│    Network End-to-End  │
+SIZE     Large Dataset   │   (Unfreeze Deep       │   or Fine-Tune Entire  │
+                         │    Layers with Small   |   Network End-to-End   |
+                         |           LR)          │                        │
                          └────────────────────────┴────────────────────────┘
 ```
 
