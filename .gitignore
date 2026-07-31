@@ -1,0 +1,11 @@
+# Raw heavy binary datasets
+Datasets/MNIST/raw/
+Datasets/cifar-10*
+*.tar.gz
+*.ubyte
+*.ubyte.gz
+
+# Python and Jupyter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
