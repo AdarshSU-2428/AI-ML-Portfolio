@@ -90,16 +90,16 @@ Use this $2 \times 2$ decision matrix based on your target dataset characteristi
 
 ```
                                 TARGET DATASET SIMILARITY TO IMAGENET
-                               High Similarity           Low Similarity
+                               High Similarity          Low Similarity
                          ┌────────────────────────┬────────────────────────┐
                          │   Feature Extraction   │   Feature Extraction   │
          Small Dataset   │   (Freeze Backbone,    │  (From Earlier Layers  │
                          │   Train FC Head Only)  │   or Retrain Head)     │
 TARGET                   ├────────────────────────┼────────────────────────┤
 DATASET                  │     Fine-Tuning        │   Train From Scratch   │
-SIZE     Large Dataset   │   (Unfreeze Deep       │   or Fine-Tune Entire  │
+SIZE                     │   (Unfreeze Deep       │   or Fine-Tune Entire  │
                          │    Layers with Small   |   Network End-to-End   |
-                         |           LR)          │                        │
+         Large Dataset   |           LR)          │                        │
                          └────────────────────────┴────────────────────────┘
 ```
 
